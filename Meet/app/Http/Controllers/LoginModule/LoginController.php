@@ -10,34 +10,34 @@
 namespace App\Http\Controllers\LoginModule;
 
 use App\Http\Controllers\Controller;
-use App\User;
 use Illuminate\Http\Request;
 use App\Models\Users;
 use Illuminate\Support\Facades\DB;
 
 class LoginController extends Controller {
 
+    //手机登录接口
     public function phone_login(Request $request) {
 
-        $token    = $request->input('token');
-        $phone    = $request->input('phoneNumber');
+        $phone    = $request->input('mobile');
         $password = $request->input('password');
-        $version  = $request->input('version');
-        $plaform  = $request->input('plaform');
 
-        $users_table = array(
-            'token' => $token,
-            'phone' => $phone,
-            'password' => $password,
-            'plaform'  => $plaform,
-            'version'  => $version
-        );
+        $user     = $this->check_regist($phone, $password);
 
-        //$users_table = Users::all()->toArray();
-
-        json_return(RESPONSE_OK,'登录成功',$users_table); 
+        if (empty($user)) {
+            json_return(RESPONSE_UN_LOGIN,"用户未注册");
+        } else {
+            json_return(RESPONSE_OK,'登录成功',$user);
+        }
     }
 
+    //检查用户是否已注册
+    public function check_regist($phoneNumber,$password){
+        $users_table = DB::table('user_table')->where('mobile','=',$phoneNumber)->get();
+        return $users_table;
+    }
+
+    //上传照片接口
     public function upload_image() {
 
         if (isset($_FILES['image'])) {
